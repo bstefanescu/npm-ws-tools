@@ -1,0 +1,52 @@
+{
+  "name": "ws-tools",
+  "version": "0.1.0",
+  "description": "Command line tools for working with npm workspaces. Includes version bumping and dependencies version update",
+  "type": "module",
+  "bin": {
+    "wst": "./bin/wst.mjs"
+  },
+  "files": [
+    "src",
+    "lib",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsmod build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "version",
+    "ws",
+    "workspace",
+    "fix",
+    "manage",
+    "update",
+    "bump",
+    "version",
+    "dependency"
+  ],
+  "author": "Bogdan Stefanescu <stefanescu.bogdan@gmail.com>",
+  "homepage": "https://github.com/bstefanescu/ws-tools",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/bstefanescu/ws-tools.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^10.3.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "ts-dual-module": "^0.6.3"
+  },
+  "ts_dual_module": {
+    "outDir": "lib"
+  },
+  "exports": {
+    "types": "./lib/types/index.d.ts",
+    "import": "./lib/esm/index.js",
+    "require": "./lib/cjs/index.js"
+  },
+  "types": "./lib/types/index.d.ts"
+}
