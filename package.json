@@ -1,6 +1,6 @@
 {
   "name": "npm-ws-tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Command line tools for working with npm workspaces. Includes version bumping and dependencies version update",
   "type": "module",
   "bin": {
@@ -26,11 +26,11 @@
     "version",
     "dependency"
   ],
-  "author": "Bogdan Stefanescu <stefanescu.bogdan@gmail.com>",
-  "homepage": "https://github.com/bstefanescu/ws-tools",
+  "author": "bstefanescu <stefanescu.bogdan@gmail.com>",
+  "homepage": "https://github.com/bstefanescu/npm-ws-tools",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/bstefanescu/ws-tools.git"
+    "url": "git+ssh://git@github.com/bstefanescu/npm-ws-tools.git"
   },
   "license": "MIT",
   "dependencies": {
