@@ -1,5 +1,5 @@
 {
-  "name": "ws-tools",
+  "name": "npm-ws-tools",
   "version": "0.1.0",
   "description": "Command line tools for working with npm workspaces. Includes version bumping and dependencies version update",
   "type": "module",
