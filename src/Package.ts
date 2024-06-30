@@ -26,7 +26,7 @@ export class Package {
     parent?: Package;
     file: string;
 
-    constructor(file: string, public content: Record<string, any>, public tab: number = 4) {
+    constructor(file: string, public content: Record<string, any>, public tab: number = 4, public nlAtEof = false) {
         this.file = path.resolve(file);
     }
 
@@ -105,17 +105,20 @@ export class Package {
     }
 
     save() {
-        fs.writeFileSync(this.file, JSON.stringify(this.content, null, this.tab) + '\n');
+        fs.writeFileSync(this.file, JSON.stringify(this.content, null, this.tab) + (this.nlAtEof ? '\n' : ''));
     }
 
     static load(file: string) {
         let tab = 4;
-        const content = fs.readFileSync(file, 'utf8').trim();
+        let content = fs.readFileSync(file, 'utf8');
+        const nlAtEof = /\s*\n\s*$/.test(content);
+        content = content.trim();
         const m = /^(\s+)/m.exec(content);
         if (m) {
             tab = m[1].length;
         }
-        return new Package(file, JSON.parse(content), tab)
+
+        return new Package(file, JSON.parse(content), tab, nlAtEof)
     }
 
     static findClosest(cwd?: string) {
