@@ -1,8 +1,30 @@
 import fs from 'fs';
 import { globSync } from 'glob';
+import yaml from "js-yaml";
 import path from 'path';
 import { Version } from './Version.js';
 
+function resolveWorkspacePaths(paths: string[], baseDir: string) {
+    if (!paths) {
+        throw new Error('Not a root package');
+    }
+    if (!Array.isArray(paths)) {
+        throw new Error('workspaces must be an array');
+    }
+    return globSync(paths, { cwd: baseDir, absolute: true, }).filter(p => {
+        return fs.statSync(p).isDirectory();
+    });
+}
+
+function listPnpmProjects(file: string) {
+    try {
+        const doc: any = yaml.load(fs.readFileSync(file, 'utf8'));
+        return (doc.packages || []) as string[];
+    } catch (e) {
+        console.log("Failed to load pnpm workspace file", e);
+        process.exit(1);
+    }
+}
 
 export function findClosestPackage(dir: string) {
     let current = dir;
@@ -25,13 +47,33 @@ export class Package {
 
     parent?: Package;
     file: string;
+    // whether or not is a workspace root. undefined if not yet known
+    isRoot: boolean;
+    isPnpmRoot: boolean;
+    // if is workspace root contains the list of projects
+    projects?: Package[];
 
     constructor(file: string, public content: Record<string, any>, public tab: number = 4, public nlAtEof = false) {
         this.file = path.resolve(file);
-    }
-
-    get isRoot() {
-        return this.content.workspaces;
+        // check if there is a pnpm workspace file
+        const wdir = this.dir;
+        let _isRoot = false;
+        let _isPnpmRoot = false;
+        if (this.content.workspaces && Array.isArray(this.content.workspaces)) {
+            _isRoot = true;
+            const projectPaths = resolveWorkspacePaths(this.content.workspaces, wdir);
+            this.projects = this._resolveWorkspaces(projectPaths);
+        } else {
+            const wsPath = path.join(wdir, "pnpm-workspace.yaml");
+            if (fs.existsSync(wsPath)) {
+                _isRoot = true;
+                _isPnpmRoot = true;
+                const projectPaths = resolveWorkspacePaths(listPnpmProjects(wsPath), wdir);
+                this.projects = this._resolveWorkspaces(projectPaths);
+            }
+        }
+        this.isPnpmRoot = _isPnpmRoot;
+        this.isRoot = _isRoot;
     }
 
     get dir() {
@@ -68,20 +110,17 @@ export class Package {
         }
     }
 
-    resolveWorkspacePaths() {
-        const ws = this.content.workspaces;
-        if (!ws) {
-            throw new Error('Not a root package');
-        }
-        if (!Array.isArray(ws)) {
-            throw new Error('workspaces must be an array');
-        }
-        return globSync(ws, { cwd: this.dir });
+    excludeProjects(prefix: string | undefined) {
+        if (!prefix) return this;
+        prefix = path.resolve(this.dir, prefix);
+        if (!this.projects) return this;
+        this.projects = this.projects.filter(p => !p.file.startsWith(prefix))
+        return this;
     }
 
-    resolveWorkspaces() {
-        return this.resolveWorkspacePaths().map((ws: string) => {
-            const file = path.resolve(this.dir, ws, 'package.json');
+    _resolveWorkspaces(projectPaths: string[]) {
+        return projectPaths.map((projectPath: string) => {
+            const file = path.resolve(projectPath, 'package.json');
             const pkg = Package.load(file);
             pkg.parent = this;
             return pkg;

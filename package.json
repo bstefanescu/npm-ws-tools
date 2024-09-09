@@ -1,6 +1,6 @@
 {
   "name": "npm-ws-tools",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Command line tools for working with npm workspaces. Includes version bumping and dependencies version update",
   "type": "module",
   "bin": {
@@ -12,7 +12,7 @@
     "bin"
   ],
   "scripts": {
-    "build": "tsmod build",
+    "build": "tsmod build --esm",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -34,9 +34,12 @@
   },
   "license": "MIT",
   "dependencies": {
-    "glob": "^10.3.10"
+    "commander": "^11.1.0",
+    "glob": "^10.3.10",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.11.30",
     "ts-dual-module": "^0.6.3"
   },

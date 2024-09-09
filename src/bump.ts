@@ -11,15 +11,21 @@ export function bumpVersions(root: Package, version?: "major" | "minor" | "patch
     if (!version) {
         version = "minor"; // default bump strategy
     }
-    const workspaces = root.resolveWorkspaces();
+    if (!root.isRoot) {
+        console.log("Not a root package: " + root.file);
+        process.exit(1);
+    }
+    const workspaces = root.projects!;
     const versionsMap: Record<string, string> = {};
     for (const ws of workspaces) {
         ws.version = version;
         versionsMap[ws.name] = depMod + ws.version;
     }
     root.version = version;
-    for (const ws of [root, ...workspaces]) {
-        updateAllDepsVersions(ws, versionsMap);
+    if (!root.isPnpmRoot) { // pnpm uses workspace:*
+        for (const ws of [root, ...workspaces]) {
+            updateAllDepsVersions(ws, versionsMap);
+        }
     }
     for (const ws of workspaces) {
         ws.save();
@@ -47,7 +53,11 @@ function updateDepsVersions(pkg: Package, versionsMap: Record<string, string>, d
 }
 
 export function updateDependencies(root: Package, versionsMap: Record<string, string>) {
-    const workspaces = root.resolveWorkspaces();
+    if (!root.isRoot) {
+        console.log("Not a root package: " + root.file);
+        process.exit(1);
+    }
+    const workspaces = root.projects!;
     for (const ws of [root, ...workspaces]) {
         updateAllDepsVersions(ws, versionsMap);
         ws.save();
